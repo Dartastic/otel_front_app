@@ -1,11 +1,12 @@
-// Licensed under the Dartastic Pro Software License Agreement.
+// Licensed under the Apache License, Version 2.0
 // Copyright 2025-2026 Mindful Software LLC d/b/a Dartastic.io, All rights reserved.
 
-import 'package:dartastic_opentelemetry/dartastic_opentelemetry.dart';
+import 'package:dartastic_opentelemetry_api/dartastic_opentelemetry_api.dart';
 
 import 'otel_front_app_suppression.dart';
 
 class FrontAppResult {
+  /// Creates a result.
   const FrontAppResult({
     this.companyId,
     this.surface,
@@ -55,8 +56,13 @@ class FrontAppResult {
   final String? errorMessage;
 }
 
+/// What a traced call returned: the value for the caller plus fields
+/// recorded on the span.
 class FrontAppCallResult<T> {
+  /// Creates a call result.
   const FrontAppCallResult({required this.value, this.result});
+
+  /// The value returned to the caller.
   final T value;
   final FrontAppResult? result;
 }
@@ -64,122 +70,123 @@ class FrontAppCallResult<T> {
 Future<T> tracedFrontApp<T>({
   required String operation,
   required Future<FrontAppCallResult<T>> Function() invoke,
-  Tracer? tracer,
+  APITracer? tracer,
 }) async {
   if (frontAppInstrumentationSuppressed()) {
     final r = await invoke();
     return r.value;
   }
-  final t = tracer ?? OTel.tracerProvider().getTracer('otel_front_app');
+  final t = tracer ?? OTelAPI.tracerProvider().getTracer('otel_front_app');
   final span = t.startSpan('front $operation', kind: SpanKind.client);
   try {
     span.addAttributes(
-        OTel.attributes([OTel.attributeString('rpc.system', 'front')]));
+        OTelAPI.attributes([OTelAPI.attributeString('rpc.system', 'front')]));
     span.addAttributes(
-        OTel.attributes([OTel.attributeString('rpc.method', operation)]));
+        OTelAPI.attributes([OTelAPI.attributeString('rpc.method', operation)]));
     final r = await invoke();
     final res = r.result;
     if (res != null) {
       if (res.companyId != null) {
-        span.addAttributes(OTel.attributes(
-            [OTel.attributeString('front.company.id', res.companyId!)]));
+        span.addAttributes(OTelAPI.attributes(
+            [OTelAPI.attributeString('front.company.id', res.companyId!)]));
       }
       if (res.surface != null) {
-        span.addAttributes(OTel.attributes(
-            [OTel.attributeString('front.surface', res.surface!)]));
+        span.addAttributes(OTelAPI.attributes(
+            [OTelAPI.attributeString('front.surface', res.surface!)]));
       }
       if (res.inboxId != null) {
-        span.addAttributes(OTel.attributes(
-            [OTel.attributeString('front.inbox.id', res.inboxId!)]));
+        span.addAttributes(OTelAPI.attributes(
+            [OTelAPI.attributeString('front.inbox.id', res.inboxId!)]));
       }
       if (res.inboxName != null) {
-        span.addAttributes(OTel.attributes(
-            [OTel.attributeString('front.inbox.name', res.inboxName!)]));
+        span.addAttributes(OTelAPI.attributes(
+            [OTelAPI.attributeString('front.inbox.name', res.inboxName!)]));
       }
       if (res.channelId != null) {
-        span.addAttributes(OTel.attributes(
-            [OTel.attributeString('front.channel.id', res.channelId!)]));
+        span.addAttributes(OTelAPI.attributes(
+            [OTelAPI.attributeString('front.channel.id', res.channelId!)]));
       }
       if (res.channelType != null) {
-        span.addAttributes(OTel.attributes(
-            [OTel.attributeString('front.channel.type', res.channelType!)]));
+        span.addAttributes(OTelAPI.attributes(
+            [OTelAPI.attributeString('front.channel.type', res.channelType!)]));
       }
       if (res.conversationId != null) {
-        span.addAttributes(OTel.attributes([
-          OTel.attributeString('front.conversation.id', res.conversationId!)
+        span.addAttributes(OTelAPI.attributes([
+          OTelAPI.attributeString('front.conversation.id', res.conversationId!)
         ]));
       }
       if (res.conversationStatus != null) {
-        span.addAttributes(OTel.attributes([
-          OTel.attributeString(
+        span.addAttributes(OTelAPI.attributes([
+          OTelAPI.attributeString(
               'front.conversation.status', res.conversationStatus!)
         ]));
       }
       if (res.conversationCategory != null) {
-        span.addAttributes(OTel.attributes([
-          OTel.attributeString(
+        span.addAttributes(OTelAPI.attributes([
+          OTelAPI.attributeString(
               'front.conversation.category', res.conversationCategory!)
         ]));
       }
       if (res.messageId != null) {
-        span.addAttributes(OTel.attributes(
-            [OTel.attributeString('front.message.id', res.messageId!)]));
+        span.addAttributes(OTelAPI.attributes(
+            [OTelAPI.attributeString('front.message.id', res.messageId!)]));
       }
       if (res.messageType != null) {
-        span.addAttributes(OTel.attributes(
-            [OTel.attributeString('front.message.type', res.messageType!)]));
+        span.addAttributes(OTelAPI.attributes(
+            [OTelAPI.attributeString('front.message.type', res.messageType!)]));
       }
       if (res.contactId != null) {
-        span.addAttributes(OTel.attributes(
-            [OTel.attributeString('front.contact.id', res.contactId!)]));
+        span.addAttributes(OTelAPI.attributes(
+            [OTelAPI.attributeString('front.contact.id', res.contactId!)]));
       }
       if (res.teammateId != null) {
-        span.addAttributes(OTel.attributes(
-            [OTel.attributeString('front.teammate.id', res.teammateId!)]));
+        span.addAttributes(OTelAPI.attributes(
+            [OTelAPI.attributeString('front.teammate.id', res.teammateId!)]));
       }
       if (res.tagsCount != null) {
-        span.addAttributes(OTel.attributes(
-            [OTel.attributeInt('front.tags.count', res.tagsCount!)]));
+        span.addAttributes(OTelAPI.attributes(
+            [OTelAPI.attributeInt('front.tags.count', res.tagsCount!)]));
       }
       if (res.attachmentsCount != null) {
-        span.addAttributes(OTel.attributes([
-          OTel.attributeInt('front.attachments.count', res.attachmentsCount!)
+        span.addAttributes(OTelAPI.attributes([
+          OTelAPI.attributeInt('front.attachments.count', res.attachmentsCount!)
         ]));
       }
       if (res.draftId != null) {
-        span.addAttributes(OTel.attributes(
-            [OTel.attributeString('front.draft.id', res.draftId!)]));
+        span.addAttributes(OTelAPI.attributes(
+            [OTelAPI.attributeString('front.draft.id', res.draftId!)]));
       }
       if (res.ruleId != null) {
-        span.addAttributes(OTel.attributes(
-            [OTel.attributeString('front.rule.id', res.ruleId!)]));
+        span.addAttributes(OTelAPI.attributes(
+            [OTelAPI.attributeString('front.rule.id', res.ruleId!)]));
       }
       if (res.firstResponseTimeSeconds != null) {
-        span.addAttributes(OTel.attributes([
-          OTel.attributeInt('front.first_response_time_seconds',
+        span.addAttributes(OTelAPI.attributes([
+          OTelAPI.attributeInt('front.first_response_time_seconds',
               res.firstResponseTimeSeconds!)
         ]));
       }
       if (res.resolutionTimeSeconds != null) {
-        span.addAttributes(OTel.attributes([
-          OTel.attributeInt(
+        span.addAttributes(OTelAPI.attributes([
+          OTelAPI.attributeInt(
               'front.resolution_time_seconds', res.resolutionTimeSeconds!)
         ]));
       }
       if (res.statusCode != null) {
-        span.addAttributes(OTel.attributes(
-            [OTel.attributeInt('http.response.status_code', res.statusCode!)]));
+        span.addAttributes(OTelAPI.attributes([
+          OTelAPI.attributeInt('http.response.status_code', res.statusCode!)
+        ]));
       }
       if (res.errorCode != null) {
-        span.addAttributes(OTel.attributes(
-            [OTel.attributeString('front.error.code', res.errorCode!)]));
+        span.addAttributes(OTelAPI.attributes(
+            [OTelAPI.attributeString('front.error.code', res.errorCode!)]));
       }
       final fail = res.errorCode != null ||
           (res.statusCode != null && res.statusCode! >= 400);
       if (fail) {
-        span.addAttributes(OTel.attributes([
-          OTel.attributeString(
-              ErrorResource.errorType.key, res.errorCode ?? 'front.error')
+        span.addAttributes(OTelAPI.attributes([
+          OTelAPI.attributeString(
+              ErrorAttributes.errorType.key, res.errorCode ?? 'front.error')
         ]));
         span.setStatus(SpanStatusCode.Error, res.errorMessage);
       }
